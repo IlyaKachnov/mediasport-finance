@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/C:/xampp/htdocs/mediasport/resources/views/layouts/master.blade.php</file>
+            <file>file:/C:/xampp/htdocs/mediasport/app/Http/Controllers/LeagueController.php</file>
+            <file>file:/C:/xampp/htdocs/mediasport/public/assets/global/scripts/app.min.js</file>
+            <file>file:/C:/xampp/htdocs/mediasport/app/Http/Controllers/UserController.php</file>
+            <file>file:/C:/xampp/htdocs/mediasport/app/Models/League.php</file>
+            <file>file:/C:/xampp/htdocs/mediasport/resources/views/leagues/index.blade.php</file>
+            <file>file:/C:/xampp/htdocs/mediasport/public/assets/pages/custom-scripts/ajax-crud.js</file>
+            <file>file:/C:/xampp/htdocs/mediasport/public/assets/global/scripts/datatable.js</file>
+            <file>file:/C:/xampp/htdocs/mediasport/public/assets/pages/scripts/table-datatables-editable.js</file>
+            <file>file:/C:/xampp/htdocs/mediasport/resources/views/tables/editable.blade.php</file>
+        </group>
+    </open-files>
+</project-private>

@@ -157,10 +157,20 @@ var TableDatatablesEditable = function () {
             var check = $('input.is_required', nRow).filter(function () {
                 return $(this).val() == "";
             });
+            var checkSelect = $('select.is_required', nRow).filter(function (){
+                return ($('option:selected', this).val() == 0);
+            });
+           // alert($('select.is_required','option:selected').val());
+            
             var errors = false;
             $('.help-block', nRow).remove();
-            $('input:text', nRow).removeClass('error-input');
+            $('.is_required', nRow).removeClass('error-input');
             check.each(function () {
+                $(this).addClass('error-input');
+                errors = true;
+            });
+            checkSelect.each(function () {
+                //alert(this);
                 $(this).addClass('error-input');
                 errors = true;
             });
@@ -198,11 +208,11 @@ var TableDatatablesEditable = function () {
             var jqTds = $('>td', nRow);
             var dataId = $('.edit', nRow).attr('data-id');
             dataId = (dataId === undefined) ? '' : dataId;
-            jqTds[0].innerHTML = '<select id="leagues" class="form-control input-small"><option disabled selected value="0">Выбрать</option></select>';
-            jqTds[1].innerHTML = '<select id="home_teams" class="form-control input-small teams"><option disabled selected value="0">Выбрать</option></select>';
+            jqTds[0].innerHTML = '<select id="leagues" class="form-control input-small is_required"><option disabled selected value="0">Выбрать</option></select>';
+            jqTds[1].innerHTML = '<select id="home_teams" class="form-control input-small teams is_required"><option disabled selected value="0">Выбрать</option></select>';
             jqTds[2].innerHTML = '<input id="home_fee" type="text" class="form-control input-small is_required is_number" value="' + aData[2] + '">';
             jqTds[3].innerHTML = '<select id="payment_types_home" class="payments form-control input-small"></select>';
-            jqTds[4].innerHTML = '<select id="guest_teams"  class="form-control input-small teams"><option disabled selected value="0">Выбрать</option></select>';
+            jqTds[4].innerHTML = '<select id="guest_teams"  class="form-control input-small teams is_required"><option disabled selected value="0">Выбрать</option></select>';
             jqTds[5].innerHTML = '<input id="guest_fee" type="text" class="form-control input-small is_required is_number" value="' + aData[5] + '">';
             jqTds[6].innerHTML = '<select id="payment_types_guest" class="payments form-control input-small"></select>';
             jqTds[7].innerHTML = '<select id="referees" class="form-control input-small"></select>';

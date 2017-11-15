@@ -12,43 +12,61 @@ use App\Models\Debt;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
-class MatchController extends Controller {
+class MatchController extends Controller
+{
 
     /**
      * Display a listing of the resource.
-     * Display list of matches associated 
+     * Display list of matches associated
      * with current league
      * @return \Illuminate\Http\Response
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->middleware('manager', ['except' => ['showReport', 'filterReport']]);
         //$this->middleware('admin');
     }
 
-    public function index(Gym $gym) {
+    public function index(Gym $gym)
+    {
         //$gym = $gym->with(['matches','dayExpenses']);
         $matches = $gym->getTodayMatches();
         $dExp = $gym->getTodayExpenses()->first();
+        if (\request("main_date")) {
+            $date = new Carbon(request('main_date'));
+            $matches = $gym->getMatchesOnDate($date);
+            $dExp = $gym->getExpensesOnDate($date)->first();
+            $selectedDate = $date->format('d-m-Y');
+            $incomes = $gym->getDayIncomesAttribute($date);
+            $expenses = $gym->getDayExpenseAttribute($date);
+            $debt = $gym->getDayDebtAttribute($date);
+            $total = $incomes - $expenses;
+
+            return view('matches.index', compact('matches', 'dExp', 'gym', 'selectedDate', 'incomes', 'expenses', 'total', 'debt'));
+        }
+
         return view('matches.index', compact('matches', 'gym', 'dExp'));
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function create(Gym $gym) {
+    public function create(Gym $gym)
+    {
 
         $allMethods = PaymentMethod::all();
         $methods = $allMethods->take(3)->all();
         $referees = Referee::all();
         $leagues = League::with('teams')->get();
         $rent = $gym->rent;
-        return compact('allMethods', 'methods', 'referees', 'leagues','rent');
+        return compact('allMethods', 'methods', 'referees', 'leagues', 'rent');
     }
 
-    public function store(Request $request, Gym $gym, Match $match) {
+    public function store(Request $request, Gym $gym, Match $match)
+    {
 
         $date = new Carbon($request->input('match_date'));
         $match->fill($request->all());
@@ -97,10 +115,11 @@ class MatchController extends Controller {
 
     /**
      * Update the specified resource in storage.
-     * @param  \App\Match  $match
+     * @param  \App\Match $match
      * @return \Illuminate\Http\Response
      */
-    public function edit(Match $match) {
+    public function edit(Match $match)
+    {
         $allMethods = PaymentMethod::all();
         $methods = $allMethods->take(3)->all();
         $referees = Referee::all();
@@ -111,7 +130,8 @@ class MatchController extends Controller {
         return compact('methods', 'allMethods', 'referees', 'homeTeams', 'guestTeams', 'match', 'leagues');
     }
 
-    public function update(Request $request, Gym $gym, Match $match) {
+    public function update(Request $request, Gym $gym, Match $match)
+    {
         $date = new Carbon($request->input('match_date'));
         $homeTeam = $request->input('home_list');
         $guestTeam = $request->input('guest_list');
@@ -126,10 +146,10 @@ class MatchController extends Controller {
         //payment methods associate
         $homeMethod = $request->input('home_method_list');
         $guestMethod = $request->input('guest_method_list');
-          /*
-         * Когда меняем команду при редактировании
-         * 
-         */
+        /*
+       * Когда меняем команду при редактировании
+       *
+       */
         if (!strcmp($homeTeam, $match->home_id)) {
             if ($homeFee < $rent) {
                 $this->saveDebt($date, $rent - $homeFee, $homeTeam, $match->id);
@@ -148,18 +168,17 @@ class MatchController extends Controller {
                 }
             }
         }
-          /*
-         * Когда меняем сумму аренды
-         * 
-         */
+        /*
+       * Когда меняем сумму аренды
+       *
+       */
         if ($homeFee != $match->home_fee) {
             $debt = $this->findDebt($match->home_id, $match)->first();
-                if ($debt && $homeFee < $rent) {
-                    $debt->update(['debt_amount' => $rent - $homeFee]);
-                } elseif ($debt && $homeFee >= $rent) {
-                    $debt->delete();
-                }
-             elseif ($debt === null && ($homeFee < $rent)) {
+            if ($debt && $homeFee < $rent) {
+                $debt->update(['debt_amount' => $rent - $homeFee]);
+            } elseif ($debt && $homeFee >= $rent) {
+                $debt->delete();
+            } elseif ($debt === null && ($homeFee < $rent)) {
                 $this->saveDebt($date, $rent - $homeFee, $homeTeam, $match->id);
             }
         }
@@ -227,10 +246,11 @@ class MatchController extends Controller {
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Match  $match
+     * @param  \App\Match $match
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Gym $gym, Match $match) {
+    public function destroy(Gym $gym, Match $match)
+    {
         $date = $match->match_date;
         $homeFee = $match->home_fee;
         $guestFee = $match->guest_fee;
@@ -250,30 +270,20 @@ class MatchController extends Controller {
         return $response;
     }
 
-    public function reloadOnDate(Gym $gym) {
-        $date = new Carbon(request('main_date'));
-        $matches = $gym->getMatchesOnDate($date);
-        $dExp = $gym->getExpensesOnDate($date)->first();
-        $selectedDate = $date->format('d-m-Y');
-        $incomes = $gym->getDayIncomesAttribute($date);
-        $expenses = $gym->getDayExpenseAttribute($date);
-        $debt = $gym->getDayDebtAttribute($date);
-        $total = $incomes - $expenses;
-        return view('matches.index', compact('matches', 'dExp', 'gym', 'selectedDate', 'incomes', 'expenses', 'total', 'debt'));
-    }
-
-    public function ajaxSelect() {
+    public function ajaxSelect()
+    {
         $leagueId = request('league_id');
         $homeId = request('home_id');
         return Match::getAvailableTeams($leagueId, $homeId);
     }
 
-    public function ajaxHomeSelect() {
+    public function ajaxHomeSelect()
+    {
         $leagueId = request('league_id');
         return League::findOrFail($leagueId)
-                        ->teams()
-                        ->orderBy('name', 'asc')
-                        ->get();
+            ->teams()
+            ->orderBy('name', 'asc')
+            ->get();
     }
 
     //времменно
@@ -283,7 +293,8 @@ class MatchController extends Controller {
 //      $guestId = request('guest_id');
 //      return Match::getAvailableEditTeams($league->id, $homeId, $guestId);
 //    }
-    public function showReport(Match $match) {
+    public function showReport(Match $match)
+    {
         /* $match = $matchModel->with(['hasPhoto',
           'hasVideo',
           'videoEdit',
@@ -295,7 +306,8 @@ class MatchController extends Controller {
         return view('matches.show', compact('match', 'gyms'));
     }
 
-    public function filterReport(Match $match) {
+    public function filterReport(Match $match)
+    {
         $dateFrom = request('date_from') ? new Carbon(request('date_from')) : null;
         $dateUntil = request('date_until') ? new Carbon(request('date_until')) : null;
         $gyms = request('gym_list');
@@ -315,18 +327,21 @@ class MatchController extends Controller {
         return response()->json(compact('response'));
     }
 
-    public function checkBalance(Team $team) {
+    public function checkBalance(Team $team)
+    {
         return response()->json(['balance' => $team->balance, 'name' => $team->name]);
     }
 
-    public function saveDebt($date, $amount, $teamId, $matchId) {
+    public function saveDebt($date, $amount, $teamId, $matchId)
+    {
         $debt = new Debt(['debt_amount' => $amount, 'debt_day' => $date]);
         $debt->team()->associate($teamId);
         $debt->match()->associate($matchId);
         $debt->save();
     }
 
-    public function findDebt($teamId, $match) {
+    public function findDebt($teamId, $match)
+    {
         return $match->getTeamDebt($teamId);
     }
 

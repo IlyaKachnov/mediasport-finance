@@ -14,8 +14,9 @@ Auth::routes();
 Route::get('/', 'Auth\LoginController@showLoginForm');
 Route::post('login', 'Auth\LoginController@login');
 Route::group(['middleware' => ['auth']], function () {
-    Route::get('/dashboard', 'AdministratorController@index');
-    Route::patch('/dashboard/{user}', 'AdministratorController@update');
+    Route::get('/', 'AdministratorController@index');
+    Route::get('/profile', 'AdministratorController@index');
+    Route::patch('/profile/{user}', 'AdministratorController@update');
     Route::resource('users', 'UserController');
     //Route::get('user/activation/{token}','Auth\RegisterController@activateUser');
     Route::get('/logout', 'Auth\LoginController@logout');
@@ -90,35 +91,5 @@ Route::group(['middleware' => ['auth']], function () {
     //common report
     Route::get('common-reports', 'CommonReportController@showReport');
     Route::post('common/filter', ['uses' => 'CommonReportController@filterReport', 'as' => 'common.filter']);
-
-////Clear Cache facade value:
-//Route::get('/clear-cache', function() {
-//    $exitCode = Artisan::call('cache:clear');
-//    return '<h1>Cache facade value cleared</h1>';
-//});
-//
-////Reoptimized class loader:
-//Route::get('/optimize', function() {
-//    $exitCode = Artisan::call('optimize');
-//    return '<h1>Reoptimized class loader</h1>';
-//});
-//
-////Clear Route cache:
-//Route::get('/route-cache', function() {
-//    $exitCode = Artisan::call('route:cache');
-//    return '<h1>Route cache cleared</h1>';
-//});
-//
-////Clear View cache:
-//Route::get('/view-clear', function() {
-//    $exitCode = Artisan::call('view:clear');
-//    return '<h1>View cache cleared</h1>';
-//});
-//
-////Clear Config cache:
-//Route::get('/config-cache', function() {
-//    $exitCode = Artisan::call('config:cache');
-//    return '<h1>Clear Config cleared</h1>';
-//});
 });
 

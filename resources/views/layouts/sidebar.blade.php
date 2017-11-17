@@ -9,11 +9,11 @@
                     <span></span>
                 </div>
             </li>   
-            <li class="nav-item {{activeLink('dashboard')}} start">
+            <li class="nav-item {{activeLink('/')}} start">
                 <a href="{{url('/')}}" class="nav-link nav-toggle">
                     <i class="icon-home"></i>
                     <span class="title">Главная</span>
-                    <span class="{{selected('dashboard')}}"></span>
+                    <span class="{{selected('/')}}"></span>
                 </a>
             </li>
             @if(Auth::user()->isAdmin() || Auth::user()->isManager())
@@ -29,7 +29,6 @@
                     <span class="{{selected('leagues')}}"></span>
                 </a>
             </li>
-
             <li class="nav-item {{activeSubMenu('matches')}}">
                 <a href="javascript:;" class="nav-link nav-toggle ">
                     <i class="icon-game-controller"></i>
@@ -66,6 +65,7 @@
                 </ul>
             </li>
             @elseif(Auth::user()->isManager())
+                @if(Auth::user()->gyms)
             <li class="nav-item {{activeSubMenu('matches')}}">
                 <a href="javascript:;" class="nav-link nav-toggle ">
                     <i class="icon-game-controller"></i>
@@ -83,6 +83,7 @@
                     @endforeach
                 </ul>
             </li>
+                @endif
            @endif
 
              @if(Auth::user()->isAdmin() || Auth::user()->isOrganizer())

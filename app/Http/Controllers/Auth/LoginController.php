@@ -33,7 +33,7 @@ use AuthenticatesUsers;
      */
     public function showLoginForm() {
         if (Auth::check()) {
-            return redirect('/dashboard');
+            return redirect('/');
         }
         return view('login.layout');
     }

@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Notifications\Notifiable;
 use App\Models\League;
+use App\Models\Gym;
 use App\Models\Image;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
@@ -17,7 +18,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password','firstname','surname'
+        'name', 'email', 'password', 'firstname', 'surname'
     ];
 
     /**
@@ -28,42 +29,62 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
     public function role()
     {
         return $this->belongsTo(Models\Role::class);
     }
+
     public function image()
     {
         return $this->hasOne(Image::class);
     }
+
     public function setPasswordAttribute($value)
     {
-        $this->attributes['password']=  bcrypt($value);
+        $this->attributes['password'] = bcrypt($value);
     }
+
     public function isAdmin()
     {
         return $this->role->slug == 'admin' ? true : false;
     }
+
     public function isManager()
     {
         return $this->role->slug == 'manager' ? true : false;
     }
+
     public function isOrganizer()
     {
         return $this->role->slug == 'org' ? true : false;
     }
+
     public function leagues()
     {
         return $this->belongsToMany(League::class);
     }
+
+    public function gyms()
+    {
+        return $this->belongsToMany(Gym::class);
+    }
+
     public function getSelectedLeaguesAttribute()
     {
-       return $this->leagues->pluck('id')->all();
-       
+        return $this->leagues->pluck('id')->all();
+
     }
+
+    public function getSelectedGymsAttribute()
+    {
+        return $this->gyms->pluck('id')->all();
+
+    }
+
     public function getAvatarAttribute()
     {
-        $path = $this->image ? $this->id.'/'.$this->image->name : 'noimage.png';
+        $path = $this->image ? $this->id . '/' . $this->image->name : 'noimage.png';
         return $path;
     }
 

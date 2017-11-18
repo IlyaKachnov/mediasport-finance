@@ -20,8 +20,7 @@ var TableDatatablesEditable = function () {
             var updateEditBtn = '<a class="edit" data-id="' + dataId + '" href="">Сохранить</a>';
             var addTeamBtn = '<a class="add-team" href="/leagues/' + dataId + '/teams">Добавить</a>';
             var addGymBtn = '<a class="add-gyms" href="/leagues/' + dataId + '/add-gyms">Добавить</a>';
-            if (!dataId)
-            {
+            if (!dataId) {
                 var addTeamBtn = 'Сначала сохраните';
                 var addGymBtn = 'Сначала сохраните';
             }
@@ -65,11 +64,10 @@ var TableDatatablesEditable = function () {
             //oTable.fnUpdate(addTeamBtn, nRow, 9, false);
             oTable.fnDraw();
         }
-        function saveAjax(formData, dataId, url)
-        {
+
+        function saveAjax(formData, dataId, url) {
             var method = 'POST';
-            if (dataId)
-            {
+            if (dataId) {
                 method = 'PATCH';
                 url += '/' + dataId;
             }
@@ -79,8 +77,7 @@ var TableDatatablesEditable = function () {
                 type: method,
                 url: url,
                 success: function (response) {
-                    if (!response.error && method == 'POST')
-                    {
+                    if (!response.error && method == 'POST') {
                         //adding ids in new row                      
                         $('tr').find('td [data-id =""]').attr('data-id', response.id);
                         $('tr').find('td [data-id ="' + response.id + '"]').closest('tr').find('.add-team').attr('href', '/leagues/' + response.id + '/teams');
@@ -94,8 +91,8 @@ var TableDatatablesEditable = function () {
 
             });
         }
-        function deleteAjax(dataId, url)
-        {
+
+        function deleteAjax(dataId, url) {
             $.ajax({
                 dataType: 'json',
                 type: 'DELETE',
@@ -108,26 +105,26 @@ var TableDatatablesEditable = function () {
                  }*/
             });
         }
-        function checkName(name)
-        {
+
+        function checkName(name, dataId) {
             var isUnique = true;
-             $.ajax({
-                type: 'GET',
+            dataId = (dataId > 0) ? dataId : 0;
+            $.ajax({
+                type: 'POST',
                 async: false,
-                url: '/leagues/' + name + '/check-name',
-                success: function (response)
-                {
-                    if (response)
-                    {
-                        isUnique = false;
-                    }
+                data: {'name': name, 'id': dataId},
+                dataType: 'json',
+                url: url + '/check-name',
+                success: function (response) {
+                    isUnique = response.response;
                 },
             });
             return isUnique;
         }
-        function validateData(nRow)
-        {
+
+        function validateData(nRow) {
             var name = $('input:first', nRow).val();
+            var dataId = $('.edit', nRow).attr('data-id');
             var check = $('input:text', nRow).filter(function () {
                 return $(this).val() == "";
             });
@@ -141,10 +138,9 @@ var TableDatatablesEditable = function () {
                 $('#error-empty').css('display', 'block');
                 errors = true;
             });
-            if (!errors)
-            {
-                if (!checkName(name))
-                {
+            if (!errors) {
+                var check = checkName(name, dataId);
+                if (!check) {
                     $(this).addClass('error-input');
                     $('#error-unique').css('display', 'block');
                     $('#error-empty').css('display', 'none');
@@ -152,8 +148,9 @@ var TableDatatablesEditable = function () {
                 }
             }
             return errors;
-            
+
         }
+
         var table = $('#sample_editable_1');
 
         var oTable = table.dataTable({
@@ -196,12 +193,12 @@ var TableDatatablesEditable = function () {
                 }
             },
             "columnDefs": [{// set default column settings
-                    'orderable': true,
-                    'targets': [0]
-                }, {
-                    "searchable": true,
-                    "targets": [0]
-                }],
+                'orderable': true,
+                'targets': [0]
+            }, {
+                "searchable": true,
+                "targets": [0]
+            }],
             "order": [
                 [0, "asc"]
             ] // set first column as a default sort by asc
@@ -253,8 +250,7 @@ var TableDatatablesEditable = function () {
 
         table.on('click', '.cancel', function (e) {
             e.preventDefault();
-            if ($('#sample_editable_1_new').hasClass('disabled'))
-            {
+            if ($('#sample_editable_1_new').hasClass('disabled')) {
                 $('#sample_editable_1_new').removeClass('disabled');
             }
             if (nNew) {
@@ -282,13 +278,11 @@ var TableDatatablesEditable = function () {
                 editRow(oTable, nRow);
                 nEditing = nRow;
             } else if (nEditing == nRow && this.innerHTML == "Сохранить") {
-                if ($('#sample_editable_1_new').hasClass('disabled'))
-                {
+                if ($('#sample_editable_1_new').hasClass('disabled')) {
                     $('#sample_editable_1_new').removeClass('disabled');
                 }
                 isValid = false;
-                if (!validateData(nEditing))
-                {
+                if (!validateData(nEditing)) {
                     saveRow(oTable, nEditing);
                     nEditing = null;
                     var dataId = $(this).attr('data-id');
@@ -310,8 +304,7 @@ var TableDatatablesEditable = function () {
                 } else {
                     table.on('click', '.cancel', function (e) {
                         e.preventDefault();
-                        if (!isValid)
-                        {
+                        if (!isValid) {
                             oTable.fnDeleteRow(nRow);
                         }
                         isValid = true;

@@ -7,22 +7,26 @@ use App\Models\League;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
-class TeamController extends Controller {
+class TeamController extends Controller
+{
 
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function __construct() {
-       $this->middleware('org');
+    public function __construct()
+    {
+        $this->middleware('org');
     }
 
-    public function index(League $league) {
+    public function index(League $league)
+    {
         return view('teams.index', compact('league'));
     }
 
-    public function showReport() {
+    public function showReport()
+    {
         $teams = Team::with(['matchesAsHome',
             'matchesAsGuest',
             'matchesAsHome.hasPhoto',
@@ -32,13 +36,14 @@ class TeamController extends Controller {
             'matchesAsHome.otherMethod',
             'matchesAsHome.refereeMethod',
             'matchesAsHome.league'
-            ])->get();
+        ])->get();
         //$teams = Team::all();
         $leagues = League::all();
         return view('teams.show', compact('teams', 'leagues'));
     }
 
-    public function filterReport() {
+    public function filterReport()
+    {
         $response = [];
         $dateFrom = request('date_from') ? new Carbon(request('date_from')) : null;
         $dateUntil = request('date_until') ? new Carbon(request('date_until')) : null;
@@ -64,10 +69,11 @@ class TeamController extends Controller {
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, League $league, Team $team) {
+    public function store(Request $request, League $league, Team $team)
+    {
         $team->fill($request->all());
         $team->league()->associate($league);
         $team->save();
@@ -77,11 +83,12 @@ class TeamController extends Controller {
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Team  $team
+     * @param  \Illuminate\Http\Request $request
+     * @param  \App\Team $team
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, League $league, Team $team) {
+    public function update(Request $request, League $league, Team $team)
+    {
 //        $team->league()->associate($league);
         $team->update($request->all());
     }
@@ -89,16 +96,41 @@ class TeamController extends Controller {
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Team  $team
+     * @param  \App\Team $team
      * @return \Illuminate\Http\Response
      */
-    public function destroy(League $league, Team $team) {
+    public function destroy(League $league, Team $team)
+    {
         $team->prepays()->delete();
         $team->debts()->delete();
         $team->delete();
     }
-    public function checkName($name) {
 
-        return Team::whereName($name)->first();
+    public function checkName()
+    {
+
+        $id = \request('id');
+        $name = \request('name');
+        //on edit team
+        if ($id > 0) {
+            $team = Team::findOrFail($id);
+            if ($team->name == $name) {
+                return response()->json(['response' => true]);
+            }
+
+            $team = Team::whereName($name)->first();
+            if ($team) {
+                return response()->json(['response' => false]);
+            }
+
+            return response()->json(['response' => true]);
+        }
+        //on create team
+        $team = Team::whereName($name)->first();
+        if ($team) {
+            return response()->json(['response' => false]);
+        }
+
+        return response()->json(['response' => true]);
     }
 }

@@ -32,6 +32,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('gyms/report', ['uses' => 'GymController@showReport', 'as' => 'gyms.report']);
     Route::post('gyms/filter', ['uses' => 'GymController@filterReport', 'as' => 'gyms.filter']);
     //leagues
+    Route::post('leagues/check-name', 'LeagueController@checkName');
     Route::resource('leagues', 'LeagueController', ['except' => ['show']]);
     Route::get('leagues/{league}/add-gyms', 'LeagueController@addGyms');
     Route::get('leagues/{league}/load-gyms', 'LeagueController@loadGyms');
@@ -39,7 +40,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('leagues/{league}/save-gyms', 'LeagueController@saveGyms');
     Route::patch('leagues/{league}/{gym}', 'LeagueController@updateGyms');
     Route::delete('leagues/{league}/{gym}', 'LeagueController@deleteGyms');
-    Route::get('leagues/{name}/check-name', 'LeagueController@checkName');
     //teams
     Route::get('leagues/{league}/teams', 'TeamController@index');
     Route::post('leagues/{league}/teams', 'TeamController@store');
@@ -47,7 +47,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::delete('leagues/{league}/teams/{team}', 'TeamController@destroy');
     Route::get('teams/report', ['uses' => 'TeamController@showReport', 'as' => 'teams.report']);
     Route::post('teams/filter', ['uses' => 'TeamController@filterReport', 'as' => 'teams.filter']);
-    Route::get('teams/{name}/check-name', 'TeamController@checkName');
+    Route::post('teams/check-name', 'TeamController@checkName');
     //prepays
     Route::get('teams/{team}/prepays', 'PrepayController@index');
     Route::post('teams/{team}/prepays', 'PrepayController@store');

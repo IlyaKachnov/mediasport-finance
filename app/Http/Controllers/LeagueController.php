@@ -123,9 +123,30 @@ class LeagueController extends Controller
     {
         $league->gyms()->detach($gym);
     }
-    public function checkName($name) {
+    public function checkName() {
+        $id = \request('id');
+        $name = \request('name');
+        //on edit league
+        if ($id > 0) {
+            $league = League::findOrFail($id);
+            if ($league->name == $name) {
+                return response()->json(['response' => true]);
+            }
 
-        return League::whereName($name)->first();
+            $league = League::whereName($name)->first();
+            if ($league) {
+                return response()->json(['response' => false]);
+            }
+
+            return response()->json(['response' => true]);
+        }
+        //on create league
+        $league = League::whereName($name)->first();
+        if ($league) {
+            return response()->json(['response' => false]);
+        }
+
+        return response()->json(['response' => true]);
     }
 
 }

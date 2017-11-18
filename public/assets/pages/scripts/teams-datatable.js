@@ -111,19 +111,17 @@ var TableDatatablesEditable = function () {
                  }*/
             });
         }
-        function checkName(name)
-        {
+        function checkName(name, dataId) {
             var isUnique = true;
-             $.ajax({
-                type: 'GET',
+            dataId = (dataId > 0) ? dataId : 0;
+            $.ajax({
+                type: 'POST',
                 async: false,
-                url: '/teams/' + name + '/check-name',
-                success: function (response)
-                {
-                    if (response)
-                    {
-                        isUnique = false;
-                    }
+                data: {'name': name, 'id': dataId},
+                dataType: 'json',
+                url: '/teams/check-name',
+                success: function (response) {
+                    isUnique = response.response;
                 },
             });
             return isUnique;
@@ -131,6 +129,7 @@ var TableDatatablesEditable = function () {
         function validateData(nRow)
         {
            var name = $('input:first', nRow).val();
+            var dataId = $('.edit', nRow).attr('data-id');
             $(this, '.help-block').remove();
             var errors = false;
             $('.help-block', nRow).remove();
@@ -144,7 +143,7 @@ var TableDatatablesEditable = function () {
             }
             if (!errors)
             {
-                if (!checkName(name))
+                if (!checkName(name, dataId))
                 {
                     $(this).addClass('error-input');
                     $('#error-unique').css('display', 'block');
@@ -306,6 +305,7 @@ var TableDatatablesEditable = function () {
                         if (!isValid)
                         {
                             oTable.fnDeleteRow(nRow);
+                            // cancelEditRow(oTable, nRow); on edit
                         }
                         isValid = true;
                         nEditing = null;

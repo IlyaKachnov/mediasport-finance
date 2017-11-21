@@ -19,8 +19,7 @@ var TableDatatablesEditable = function () {
             dataId = (dataId === undefined) ? '' : dataId;
             var addPrepayBtn = '<a class="add-prepay" href="/teams/' + dataId + '/prepays">Перейти</a>';
             var debtsBtn = '<a class="debts" href="/teams/' + dataId + '/debts">Перейти</a>';
-            if (!dataId)
-            {
+            if (!dataId) {
                 var addPrepayBtn = 'Сначала сохраните';
                 var debtsBtn = 'Сначала сохраните';
             }
@@ -60,6 +59,7 @@ var TableDatatablesEditable = function () {
             oTable.fnUpdate(updateEditBtn, nRow, 1, false);
             oTable.fnDraw();
         }
+
         /*
          * 
          * @param {type} formData
@@ -68,11 +68,9 @@ var TableDatatablesEditable = function () {
          * Ajax methods for crud
          * 
          */
-        function saveAjax(formData, dataId, url)
-        {
+        function saveAjax(formData, dataId, url) {
             var method = 'POST';
-            if (dataId)
-            {
+            if (dataId) {
                 method = 'PATCH';
                 url += '/' + dataId;
             }
@@ -83,8 +81,7 @@ var TableDatatablesEditable = function () {
                 type: method,
                 url: url,
                 success: function (response) {
-                    if (!response.error && method == 'POST')
-                    {
+                    if (!response.error && method == 'POST') {
                         $('tr').find('td [data-id =""]').attr('data-id', response.id);
                         $('tr').find('td [data-id ="' + response.id + '"]').closest('tr').find('.add-prepay').attr('href', '/teams/' + response.id + '/prepays');
                         $('tr').find('td [data-id ="' + response.id + '"]').closest('tr').find('.debts').attr('href', '/teams/' + response.id + '/debts');
@@ -97,8 +94,8 @@ var TableDatatablesEditable = function () {
                  }*/
             });
         }
-        function deleteAjax(dataId, url)
-        {
+
+        function deleteAjax(dataId, url) {
             $.ajax({
                 dataType: 'json',
                 type: 'DELETE',
@@ -111,6 +108,7 @@ var TableDatatablesEditable = function () {
                  }*/
             });
         }
+
         function checkName(name, dataId) {
             var isUnique = true;
             dataId = (dataId > 0) ? dataId : 0;
@@ -126,25 +124,22 @@ var TableDatatablesEditable = function () {
             });
             return isUnique;
         }
-        function validateData(nRow)
-        {
-           var name = $('input:first', nRow).val();
+
+        function validateData(nRow) {
+            var name = $('input:first', nRow).val();
             var dataId = $('.edit', nRow).attr('data-id');
             $(this, '.help-block').remove();
             var errors = false;
             $('.help-block', nRow).remove();
             $('input:text', nRow).removeClass('error-input');
             $('#error-unique').css('display', 'none');
-            if ($('input:text', nRow).val() == "")
-            {
+            if ($('input:text', nRow).val() == "") {
                 $('input:text', nRow).addClass('error-input');
                 $('#error-empty').css('display', 'block');
                 errors = true;
             }
-            if (!errors)
-            {
-                if (!checkName(name, dataId))
-                {
+            if (!errors) {
+                if (!checkName(name, dataId)) {
                     $(this).addClass('error-input');
                     $('#error-unique').css('display', 'block');
                     $('#error-empty').css('display', 'none');
@@ -153,6 +148,7 @@ var TableDatatablesEditable = function () {
             }
             return errors;
         }
+
         var table = $('#teams_datatable');
 
         var oTable = table.dataTable({
@@ -195,12 +191,12 @@ var TableDatatablesEditable = function () {
                 }
             },
             "columnDefs": [{// set default column settings
-                    'orderable': true,
-                    'targets': [0]
-                }, {
-                    "searchable": true,
-                    "targets": [0]
-                }],
+                'orderable': true,
+                'targets': [0]
+            }, {
+                "searchable": true,
+                "targets": [0]
+            }],
             "order": [
                 [0, "asc"]
             ] // set first column as a default sort by asc
@@ -252,8 +248,7 @@ var TableDatatablesEditable = function () {
 
         table.on('click', '.cancel', function (e) {
             e.preventDefault();
-            if ($('#sample_add_new').hasClass('disabled'))
-            {
+            if ($('#sample_add_new').hasClass('disabled')) {
                 $('#sample_add_new').removeClass('disabled');
             }
             if (nNew) {
@@ -281,13 +276,11 @@ var TableDatatablesEditable = function () {
                 editRow(oTable, nRow);
                 nEditing = nRow;
             } else if (nEditing == nRow && this.innerHTML == "Сохранить") {
-                if ($('#sample_add_new').hasClass('disabled'))
-                {
+                if ($('#sample_add_new').hasClass('disabled')) {
                     $('#sample_add_new').removeClass('disabled');
                 }
                 isValid = false;
-                if (!validateData(nEditing))
-                {
+                if (!validateData(nEditing)) {
                     saveRow(oTable, nEditing);
                     nEditing = null;
                     var dataId = $(this).attr('data-id');
@@ -302,8 +295,7 @@ var TableDatatablesEditable = function () {
                 } else {
                     table.on('click', '.cancel', function (e) {
                         e.preventDefault();
-                        if (!isValid)
-                        {
+                        if (!isValid) {
                             oTable.fnDeleteRow(nRow);
                             // cancelEditRow(oTable, nRow); on edit
                         }

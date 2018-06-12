@@ -83,9 +83,7 @@
                     </button>
                 </div>
             </div>
-
-        </div>   
-
+        </div>
     </div>
     <div class="portlet-body">
         <div class="table-container">
@@ -99,14 +97,11 @@
                         <th> Сдано </th>
                         <th> Затраты </th>
                         <th> Разница </th>
-                   
-
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($gyms as $gym)
                     <tr>
-
                         <td data-id = "{{$gym->id}}"> {{$gym->name}} </td>
                         <td> {{$gym->number}} </td>
                         <td> {{$gym->total_rent}} </td>
@@ -117,11 +112,11 @@
                     @endforeach
                     <tr>
                         <td id="total">Итог</td>
-                        <td>{{$totalGym->sum_number}}</td>
-                        <td>{{$totalGym->sum_rent}}</td>
-                        <td>{{$totalGym->sum_fees}}</td>
-                        <td>{{$totalGym->sum_expenses}}</td>
-                        <td>{{$totalGym->total_difference}}</td>
+                        <td>{{$totalGym['matches']}}</td>
+                        <td>{{$totalGym['sum_rent']}}</td>
+                        <td>{{$totalGym['sum_fees']}}</td>
+                        <td>{{$totalGym['sum_expenses']}}</td>
+                        <td>{{$totalGym['diff']}}</td>
                     </tr>
                 </tbody>
             </table>

@@ -29,41 +29,55 @@
                     <span class="{{selected('leagues')}}"></span>
                 </a>
             </li>
-            <li class="nav-item {{activeSubMenu('matches')}}">
-                <a href="javascript:;" class="nav-link nav-toggle ">
-                    <i class="icon-game-controller"></i>
-                    <span class="title">Матчи</span>
-                    <span class="{{selected('matches')}}"></span>
-                    <span class="arrow {{activeArrow('matches')}}"></span>
-                </a>
-                <ul class="sub-menu">
-                    @foreach($allGyms as $item)
-                    <li class="nav-item  {{activeSegment($item->id,'matches')}} ">
-                        <a href="{{url('gyms')}}/{{$item->id}}/matches" class="nav-link ">
-                            <span class="title">{{$item->name}}</span>
-                        </a>
-                    </li>
-                    @endforeach
-                </ul>
-            </li>
+            {{--<li class="nav-item {{activeSubMenu('matches')}}">--}}
+                {{--<a href="javascript:;" class="nav-link nav-toggle ">--}}
+                    {{--<i class="icon-game-controller"></i>--}}
+                    {{--<span class="title">Матчи</span>--}}
+                    {{--<span class="{{selected('matches')}}"></span>--}}
+                    {{--<span class="arrow {{activeArrow('matches')}}"></span>--}}
+                {{--</a>--}}
+                {{--<ul class="sub-menu">--}}
+                    {{--@foreach($allGyms as $item)--}}
+                    {{--<li class="nav-item  {{activeSegment($item->id,'matches')}} ">--}}
+                        {{--<a href="{{url('gyms')}}/{{$item->id}}/matches" class="nav-link ">--}}
+                            {{--<span class="title">{{$item->name}}</span>--}}
+                        {{--</a>--}}
+                    {{--</li>--}}
+                    {{--@endforeach--}}
+                {{--</ul>--}}
+            {{--</li>--}}
+                <li class="nav-item {{activeLink('all-gyms')}} ">
+                    <a href="{{url('all-gyms')}}" class="nav-link nav-toggle">
+                        <i class="icon-game-controller"></i>
+                        <span class="title">Матчи</span>
+                        <span class="{{selected('all-gyms')}}"></span>
+                    </a>
+                </li>
 
-            <li class="nav-item {{activeSubMenu('fees')}} ">
-                <a href="javascript:;" class="nav-link nav-toggle">
-                    <i class="icon-wallet"></i>
-                    <span class="title">Взносы</span>
-                    <span class="{{selected('fees')}}"></span>
-                    <span class="arrow {{activeArrow('fees')}}"></span>
-                </a>
-                <ul class="sub-menu">
-                    @foreach($allLeagues as $leagueItem)
-                    <li class="nav-item {{activeSegment($leagueItem->id,'fees')}} ">
-                        <a href="{{url('leagues')}}/{{$leagueItem->id}}/fees" class="nav-link ">
-                            <span class="title">{{$leagueItem->name}}</span>
-                        </a>
-                    </li>
-                    @endforeach
-                </ul>
-            </li>
+            {{--<li class="nav-item {{activeSubMenu('fees')}} ">--}}
+                {{--<a href="javascript:;" class="nav-link nav-toggle">--}}
+                    {{--<i class="icon-wallet"></i>--}}
+                    {{--<span class="title">Взносы</span>--}}
+                    {{--<span class="{{selected('fees')}}"></span>--}}
+                    {{--<span class="arrow {{activeArrow('fees')}}"></span>--}}
+                {{--</a>--}}
+                {{--<ul class="sub-menu">--}}
+                    {{--@foreach($allLeagues as $leagueItem)--}}
+                    {{--<li class="nav-item {{activeSegment($leagueItem->id,'fees')}} ">--}}
+                        {{--<a href="{{url('leagues')}}/{{$leagueItem->id}}/fees" class="nav-link ">--}}
+                            {{--<span class="title">{{$leagueItem->name}}</span>--}}
+                        {{--</a>--}}
+                    {{--</li>--}}
+                    {{--@endforeach--}}
+                {{--</ul>--}}
+            {{--</li>--}}
+                <li class="nav-item {{activeLink('all-leagues')}} ">
+                    <a href="{{url('all-leagues')}}" class="nav-link nav-toggle">
+                        <i class="icon-wallet"></i>
+                        <span class="title">Взносы</span>
+                        <span class="{{selected('all-leagues')}}"></span>
+                    </a>
+                </li>
             @elseif(Auth::user()->isManager())
                 @if(Auth::user()->gyms)
             <li class="nav-item {{activeSubMenu('matches')}}">
@@ -120,7 +134,7 @@
                         <a href="{{url('consumptions')}}" class="nav-link ">
                             <span class="title">Расходы</span>
                         </a>
-                    </li> 
+                    </li>
                 </ul>
             </li>
             @endif

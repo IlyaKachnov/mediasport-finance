@@ -2,24 +2,30 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use App\Models\Match;
 use App\Models\DayExpense;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Log;
 
-class Gym extends Model {
+class Gym extends Model
+{
 
     protected $fillable = [
-        'name', 'address','rent'
+        'name', 'address', 'rent'
     ];
+
     public $timestamps = false;
 
-    public function matches() {
+    public function matches()
+    {
         return $this->hasMany(Match::class);
     }
 
-    public function dayExpenses() {
+    public function dayExpenses()
+    {
         return $this->hasMany(DayExpense::class);
     }
     /*
@@ -30,32 +36,36 @@ class Gym extends Model {
     /**
      * get today's matches for selected gym
      */
-    public function getTodayMatches() {
+    public function getTodayMatches()
+    {
         return $this->matches()
-                        ->whereMatchDate(\Carbon\Carbon::today())
-                        ->get();
-    }
-    public function getTodayExpenses() {
-        return $this->dayExpenses()
-                        ->where('day', \Carbon\Carbon::today())
-                        ->get();
+            ->whereMatchDate(Carbon::today())
+            ->get();
     }
 
-    /**
-     * get matches in selected date
-     */
-    public function getMatchesOnDate($date) {
-        return $this->matches()
-                        ->whereMatchDate($date)
-                        ->get();
+    public function getTodayExpenses()
+    {
+        return $this->dayExpenses()
+            ->where('day', Carbon::today())
+            ->get();
     }
 
-    public function getExpensesOnDate($date) {
-        return $this->dayExpenses()
-                        ->where('day', $date)
-                        ->get();
+    public function getMatchesOnDate(Carbon $date)
+    {
+        return $this->matches()
+            ->whereMatchDate($date)
+            ->get();
     }
-    public function getDayIncomesAttribute($date = null) {
+
+    public function getExpensesOnDate(Carbon $date)
+    {
+        return $this->dayExpenses()
+            ->where('day', $date)
+            ->get();
+    }
+
+    public function getDayIncomesAttribute(Carbon $date = null)
+    {
         $total = 0;
         if ($date) {
             $matches = $this->getMatchesOnDate($date);
@@ -69,7 +79,8 @@ class Gym extends Model {
         }
         return $total;
     }
-    public function getRefereeCost($date = null)
+
+    public function getRefereeCost(Carbon $date = null)
     {
         $total = 0;
         if ($date) {
@@ -77,15 +88,15 @@ class Gym extends Model {
         } else {
             $matches = $this->getTodayMatches();
         }
-        foreach($matches as $match)
-        {
+        foreach ($matches as $match) {
             $total += $match->league->referee_cost;
         }
         return $total;
     }
-    public function getDayExpenseAttribute($date = null)
+
+    public function getDayExpenseAttribute(Carbon $date = null)
     {
-       $total = 0;
+        $total = 0;
         if ($date) {
             $dExp = $this->getExpensesOnDate($date);
         } else {
@@ -93,12 +104,14 @@ class Gym extends Model {
         }
         if ($dExp->isNotEmpty()) {
             $dayExps = $dExp->first();
-            $total = $dayExps->photo_cost + $dayExps->video_cost + $dayExps->edit_cost 
-                    + $dayExps->rent_cost + $dayExps->doctor_cost + $dayExps->curator_cost + $dayExps->other;
+            $total = $dayExps->photo_cost + $dayExps->video_cost + $dayExps->edit_cost
+                + $dayExps->rent_cost + $dayExps->doctor_cost + $dayExps->curator_cost + $dayExps->other;
         }
         return $total + $this->getRefereeCost($date);
     }
-    public function getDayDebtAttribute($date = null) {
+
+    public function getDayDebtAttribute(Carbon $date = null)
+    {
         $totalDebt = 0;
         if ($date) {
             $matches = $this->getMatchesOnDate($date);
@@ -110,56 +123,60 @@ class Gym extends Model {
                 $totalDebt += $debt->debt_amount;
             }
         }
-   return $totalDebt;
+        return $totalDebt;
     }
 
-    public function getDayTotalAttribute($date = null)
+    public function getDayTotalAttribute(Carbon $date = null)
     {
         return $this->getDayIncomesAttribute($date) - $this->getDayExpenseAttribute($date);
     }
-/**
- * 
- * @return global method for all types of payments
- */
+
     public function getDayMatchesBalance($date)
     {
         $incomes = $this->getDayIncomesAttribute($date);
         $expenses = $this->getDayExpenseAttribute($date);
         $debt = $this->getDayDebtAttribute($date);
         $total = $this->getDayTotalAttribute($date);
-        return compact('incomes','expenses','debt','total');
+        return compact('incomes', 'expenses', 'debt', 'total');
     }
-    
-    public function leagues() {
+
+    public function leagues()
+    {
 
         return $this->belongsToMany(League::class)->withPivot('rent_price');
     }
 
-    public function scopeAmount($query) {
+    public function scopeAmount($query)
+    {
         return $query->join('matches', 'gyms.id', '=', 'matches.gym_id');
     }
 
-    public function scopeExpenses($query) {
+    public function scopeExpenses($query)
+    {
         return $query->amount()->join('leagues', 'leagues.id', '=', 'matches.league_id');
     }
 
-    public static function getAvailableGyms($leagueId) {
+    public static function getAvailableGyms($leagueId)
+    {
         $query = DB::table('gym_league')->where('league_id', $leagueId)->pluck('gym_id');
         return self::whereNotIn('id', $query)->get();
     }
 
-    public static function getEditGyms($leagueId, $gymId) {
+    public static function getEditGyms($leagueId, $gymId)
+    {
         $query = DB::table('gym_league')->where('league_id', $leagueId)->where('gym_id', '<>', $gymId)->pluck('gym_id');
         return self::whereNotIn('id', $query)->get();
     }
-/**
- * 
- * 
- * Methods for report page
- * 
- */
+    /**
+     *
+     *
+     * Methods for report page
+     *
+     */
 //count
-    public function getNumberAttribute($dateFrom = null, $dateUntil = null) {
+
+    public function getNumberAttribute(Carbon $dateFrom = null, Carbon $dateUntil = null)
+    {
         $query = $this->matches();
         if ($dateFrom && $dateUntil) {
             $query = $query->where([['match_date', '>=', $dateFrom], ['match_date', '<=', $dateUntil]]);
@@ -168,13 +185,14 @@ class Gym extends Model {
     }
 
     //аренда
-    public function getTotalRentAttribute($dateFrom = null, $dateUntil = null) {
+    public function getTotalRentAttribute($dateFrom = null, $dateUntil = null)
+    {
         $rentPrice = 0;
         $dayExpenses = $this->dayExpenses;
         if ($dateFrom && $dateUntil) {
             $dayExpenses = $this
-                    ->dayExpenses()
-                    ->where([['day', '>=', $dateFrom], ['day', '<=', $dateUntil]]);
+                ->dayExpenses()
+                ->where([['day', '>=', $dateFrom], ['day', '<=', $dateUntil]]);
         }
 
         foreach ($dayExpenses as $dExp) {
@@ -185,16 +203,19 @@ class Gym extends Model {
 
     //public function getRentOfDateAttribute()
     //сдано
-    public function getAmountFeesAttribute($dateFrom = null, $dateUntil = null) {
-        $query = Gym::amount()->where('gym_id', '=', $this->id);
+    public function getAmountFeesAttribute(Carbon $dateFrom = null, Carbon $dateUntil = null)
+    {
+        $query = Gym::join('matches', 'gyms.id', '=', 'matches.gym_id')->where('gym_id', '=', $this->id);
         if ($dateFrom && $dateUntil) {
             $query = $query->where([['match_date', '>=', $dateFrom], ['match_date', '<=', $dateUntil]]);
         }
-        return $query->sum(DB::raw('home_fee + guest_fee')); //where date between 
+
+        return(int) $query->sum(DB::raw('home_fee + guest_fee'));
     }
 
     //затраты
-    public function getTotalExpensesAttribute($dateFrom = null, $dateUntil = null) {
+    public function getTotalExpensesAttribute(Carbon $dateFrom = null, Carbon $dateUntil = null)
+    {
 
         $totalQuery = 'curator_cost + rent_cost';
         foreach ($this->dayExpenses as $dExp) {
@@ -215,35 +236,39 @@ class Gym extends Model {
             }
         }
         $query = self::join('day_expenses', 'gyms.id', '=', 'day_expenses.gym_id')
-                ->where('gym_id', '=', $this->id);
+            ->where('gym_id', '=', $this->id);
         if ($dateFrom && $dateUntil) {
             $query = $query->where([['day', '>=', $dateFrom], ['day', '<=', $dateUntil]]);
         }
-        return $query->sum(DB::raw($totalQuery)) + $this->getRefereeExpenses($dateFrom, $dateUntil);
+        return (int)$query->sum(DB::raw($totalQuery)) + $this->getRefereeExpenses($dateFrom, $dateUntil);
     }
 
     //разница
-    public function getDifferenceAttribute() {
+    public function getDifferenceAttribute()
+    {
         return $this->amount_fees - $this->total_expenses - $this->total_rent;
     }
 
     //total row 
     /**
-     * 
+     *
      * @param type $dateFrom
      * @param type $dateUntil
-     * @return type
+     * @return int
      * Get total number of gyms
      */
-    public function getSumNumberAttribute($dateFrom = null, $dateUntil = null) {
-        return Match::count();
-    }
+//    public static function getSumNumber($dateFrom = null, $dateUntil = null) {
+//        dd(Match::count());
+//        return Match::count();
+//    }
 
     /*
      * get total rent sum for all gyms with matches
      */
 
-    public function getSumRentAttribute() {
+
+    public static function getSumRent()
+    {
         $totalSum = 0;
         $gyms = Gym::all();
         foreach ($gyms as $gym) {
@@ -253,12 +278,13 @@ class Gym extends Model {
     }
 
     /**
-     * 
+     *
      * @return type
      * get total fees for all gyms
      */
-    public function getSumFeesAttribute() {
-        return Match::sum(DB::raw('home_fee + guest_fee'));
+    public static function getSumFees()
+    {
+        return (int)Match::sum(DB::raw('home_fee + guest_fee'));
     }
 
     /*
@@ -266,7 +292,8 @@ class Gym extends Model {
      * get total expenses for all gyms
      */
 
-    public function getSumExpensesAttribute() {
+    public static function getSumExpenses()
+    {
         $total = 0;
         $gyms = Gym::all();
         foreach ($gyms as $gym) {
@@ -275,20 +302,20 @@ class Gym extends Model {
         return $total;
     }
 
-    public function getTotalDifferenceAttribute() {
-        return $this->sum_fees - $this->sum_expenses - $this->sum_rent;
+    public static function getTotalDifference()
+    {
+        return self::getSumFees() - self::getSumExpenses() - self::getSumRent();
     }
 
-       public function getRefereeExpenses($dateFrom = null, $dateUntil = null)
+    public function getRefereeExpenses(Carbon $dateFrom = null, Carbon $dateUntil = null)
     {
         $total = 0;
         $allMatches = $this->matches();
         if ($dateFrom && $dateUntil) {
             $allMatches = $allMatches->where([['match_date', '>=', $dateFrom], ['match_date', '<=', $dateUntil]]);
-        } 
+        }
         $matches = $allMatches->get();
-        foreach($matches as $match)
-        {
+        foreach ($matches as $match) {
             $total += $match->league->referee_cost;
         }
         return $total;

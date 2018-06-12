@@ -10,6 +10,7 @@
   | contains the "web" middleware group. Now create something great!
   |
  */
+
 Auth::routes();
 Route::get('/', 'Auth\LoginController@showLoginForm');
 Route::post('login', 'Auth\LoginController@login');
@@ -29,11 +30,13 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('referees/filter', ['uses' => 'RefereeController@filterReport', 'as' => 'referees.filter']);
     //gyms
     Route::resource('gyms', 'GymController', ['except' => ['show']]);
+    Route::get('all-gyms', ['uses' => 'GymController@showAll', 'as' => 'gyms.all']);
     Route::get('gyms/report', ['uses' => 'GymController@showReport', 'as' => 'gyms.report']);
     Route::post('gyms/filter', ['uses' => 'GymController@filterReport', 'as' => 'gyms.filter']);
     //leagues
     Route::post('leagues/check-name', 'LeagueController@checkName');
     Route::resource('leagues', 'LeagueController', ['except' => ['show']]);
+    Route::get('all-leagues', 'LeagueController@showAll');
     Route::get('leagues/{league}/add-gyms', 'LeagueController@addGyms');
     Route::get('leagues/{league}/load-gyms', 'LeagueController@loadGyms');
     Route::get('leagues/{league}/{gym}/edit-gyms', 'LeagueController@editGyms');
